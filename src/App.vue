@@ -1,5 +1,10 @@
 <template>
-  <div></div>
+  <div id="nav">
+    <router-link to='/'>Main Screen</router-link>
+    <router-link to='/deck'>Deck</router-link>
+  </div>
+
+  <router-view></router-view>
 
   {{ files }}
 </template>
@@ -10,6 +15,8 @@ import fs from 'fs'
 
 import { app } from '@electron/remote'
 import { computed, ref } from 'vue'
+// import { onMounted } from 'vue'
+// import { useRouter, useRoute } from 'vue-router'
 
 export default {
   setup() {
