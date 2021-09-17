@@ -1,20 +1,39 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <div></div>
+
+  {{ files }}
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import fs from 'fs'
+// import pathModule from 'path'
+
+import { app } from '@electron/remote'
+import { computed, ref } from 'vue'
 
 export default {
-  name: 'App',
-  components: {
-    HelloWorld
+  setup() {
+
+    const path = ref(app.getAppPath());
+    
+    const files = computed(() => {
+      const fileNames = fs.readdirSync(path.value);
+      return fileNames;
+    });
+
+    return {
+      files
+    }
   }
 }
 </script>
 
 <style>
+
+body {
+  background: white;
+}
+
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
