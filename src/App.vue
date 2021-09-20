@@ -10,13 +10,6 @@
 </template>
 
 <script>
-// import fs from 'fs'
-// import path from 'path'
-
-// // import pathModule from 'path'
-
-// import { app } from '@electron/remote'
-// import { ref } from 'vue'
 import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 

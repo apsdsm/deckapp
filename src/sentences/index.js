@@ -1,39 +1,60 @@
 import corpus from './corpus.json';
+import * as wanakana from 'wanakana';
 
-
-export function loadSentences() {
-    
-    return corpus.slice(1,3);
-}
-
+/**
+ * Return a random sample from the corpus containing the specified kanji. Will tokenize
+ * the value and prepare it for rendering.
+ *  
+ * @param string containing 
+ * @returns 
+ */
 export function random(containing) {
-
-    console.log(corpus.slice(1,3));
-
     let filtered = corpus.filter(x => {
-        // // console.log(x.japanese);
-
-        // let str = x.japanese;
-
-        // if (!str) {
-        //     return false;
-        // }
-
-        return !x.japanese ? false : x.japanese.includes(containing)        
+        return !x.japanese ? false : x.japanese.includes(containing);      
     })
 
-
-    // console.log(Math.floor(Math.random()) * filtered.length);
-
     let idx = Math.floor(Math.random() * filtered.length);
+    let random = filtered[idx];
 
-    console.log(idx)
+    // tokenize sentence
+    random.tokenized = wanakana.tokenize(random.japanese);
 
-    let random = filtered[idx]
+    // stream into renderable blocks
+    random.streamed = [];
+    let inText = false;
 
-    console.log(random)
+    // go through the tokens and look for kanji/text, sort them into a stream of
+    // objects that can be easily rendered. If there are multiple text elements 
+    // (i.e., not kanji) in a row, they should be concatinated into a single text
+    // element. Kanji (as identified by wanakana, which is actually closer to a
+    // word) should always be in their own element.
+    random.tokenized.forEach(element => {
+        if (!wanakana.isKanji(element)) {
 
-    // console.log(filtered)
+            // no elements in array yet, or the last thing we added was a kanji? 
+            // set up a new element for concatinating text fragments.
+            if (random.streamed.length == 0 || !inText) {
+                random.streamed.push({
+                    type: 'text',
+                    content: '',
+                });
+                inText = true;
+            }
 
-    return random
+            // add the text fragment to the current element
+            random.streamed[random.streamed.length - 1].content += element;
+
+        } else {
+            inText = false;
+            random.streamed.push({
+                type: 'kanji',
+                content: element,
+            });
+        }
+    });
+
+    // debug what we just built...
+    console.log(random);
+
+    return random;
 }

@@ -1,18 +1,11 @@
 <template>
-    <h1>Main Screen - Hello</h1>
-    <p>
-        count: {{ count }}
-    </p> 
-
     <ul class="da-cards">
         <li class="da-card" v-for="kanji in config" v-bind:key="kanji.kanji">
             {{ kanji.kanji }}
         </li>
     </ul>
 
-    <p>
-        {{ japPart }}
-    </p>
+    <tokenized-phrase :phrase="phrase" />
 
 
     <button @click="queueRandom">Another!</button>
@@ -27,7 +20,6 @@
         margin: 0;
         padding: 0;
     }
-
     .da-card {
         background-color: rgb(245, 244, 241);
         display: block;
@@ -49,18 +41,14 @@ import { loadConfig } from '../session'
 import { random } from '../sentences'
 import { ref } from 'vue'
 
-let config = loadConfig()
-let example = random("人")
-let count = 0
+import TokenizedPhrase from '../components/TokenizedPhrase.vue'
 
-let japPart = ref(example.japanese)
+let config = loadConfig()
+let phrase = ref(random("人"))
 
 // todo - why isn't this updating the vriables?
 function queueRandom() {
-    console.log("adsf");
-    example = random("人")
-    japPart.value = example.japanese
-    count++
+    phrase.value = random("人")
 }
 
 </script>
