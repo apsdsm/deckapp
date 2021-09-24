@@ -1,10 +1,15 @@
 <template>
-
     <active-kanji :word="targetWord" />
 
     <phrase :phrase="phrase" @selected="selectWord($event)" />
 
+    <revealed :meaning="meaning" />
+
+    <button :disabled="uiDisabled" @click="reveal">Reveal</button>
     <button :disabled="uiDisabled" @click="queueRandom">Another!</button>
+
+    <answers :answers="answers" />
+
 </template>
 
 <script setup>
@@ -16,11 +21,15 @@ import { ref, onMounted } from 'vue'
 
 import Phrase from '../components/Phrase.vue'
 import ActiveKanji from '../components/ActiveKanji.vue'
+import Revealed from '../components/Revealed.vue'
+import Answers from '../components/Answers.vue'
 
 let config = loadConfig()
 let targetWord = ref(randomWord(config))
 let phrase = ref({ready: false})
+let meaning = ref("")
 let uiDisabled = ref(true);
+let answers = ref([])
 
 /**
  * When the component is mounted, initialize fetching a phrase
@@ -29,11 +38,18 @@ onMounted(async() => {
     await queueRandom();
 });
 
+
+function reveal() {
+    meaning.value = phrase.value.english;
+}
+
 /**
  * Get another random phrase based on the specified kanji.
  */
 async function queueRandom() {
     uiDisabled.value = true;
+    meaning.value = "";
+    answers.value = [];
     targetWord.value = randomWord(config);
     phrase.value = await random(targetWord.value.word);
     uiDisabled.value = false;
@@ -59,6 +75,12 @@ function selectWord(elem) {
     if (!inDeck(config, word)) {
         addToDeck(config, word);
         saveConfig(config);
+    }
+
+    let inAnswers = answers.value.find(x => { return x.word == word.word })
+
+    if (!inAnswers) {
+        answers.value.push(word);
     }
     
     // go through the streamed phrase, and look for isntances of the word to decorate with 'inUserDeck'    
