@@ -11,25 +11,15 @@ Uses wanakana (from wanikani) for tokenizing example sentences.
 
 Uses wwwjdic to pull in word meanings.
 
-## Project setup
-```
-npm install
-```
+Tested on macOS.
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
+## Compiling, running
 
-### Compiles and minifies for production
-```
-npm run build
-```
+First off, use `npm install` to download dependencies.
 
-### Lints and fixes files
-```
-npm run lint
-```
+To run a dev build, use `npm run electron:serve`.
+
+To build a distributable, use `npm run electron:build`.
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).

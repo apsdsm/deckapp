@@ -1,10 +1,6 @@
 import fs from 'fs'
 import path from 'path'
-
-// import pathModule from 'path'
-
 import { app } from '@electron/remote'
-
 
 function configPath() {
   let appDataPath = app.getAppPath('appData');
@@ -66,7 +62,6 @@ export function loadConfig() {
     }
   }
 }
-
 
 export function saveConfig(config) {
   const appConfigPath = configPath();

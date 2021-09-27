@@ -1,17 +1,17 @@
 <template>
     <div>
-        <ul class="da-answers">
-            <li v-for="answer in answers" class="da-answer">
+        <ul class="da-words">
+            <li v-for="word in words" class="da-word">
 
-                <div class="da-answer-word">
-                    {{ answer.word }}
+                <div class="da-word-card">
+                    {{ word.word }}
                 </div>
 
-                <ul class="da-answer-entries">
-                    <li v-for="entry in answer.entries" class="da-answer-entry">
+                <ul class="da-word-entries">
+                    <li v-for="entry in word.entries" class="da-word-entry">
                         {{ entry.pronunciation }}
 
-                        <ul class="da-answer-entry-meaning">
+                        <ul class="da-word-entry-meaning">
                             <li v-for="meaning in entry.english">
                                 {{ meaning }}
                             </li>
@@ -28,36 +28,41 @@
 <script setup>
 
 const props = defineProps({
-    answers: Array,
+    words: Array,
 })
 
 </script>
 
 <style scoped>
-    .da-answers {
+    .da-words {
         list-style: none;
         margin: 0;
         padding: 0;
         margin-top: 20px;
+        text-align: left;
+        font-size: 12px;
     }
 
-    .da-answer {
+    .da-word {
         display: flex;
         flex-direction: row;
         margin-bottom: 10px;
     }
 
-    .da-answer-word {
+    .da-word-card {
         flex: 1;
         width: 50px;
-        max-width: 50px;
+        min-width: 100px;
+        max-width: 100px;
         background-color: rgb(245, 244, 241);
         border-radius: 5px;
-        font-size: 16px;
+        font-size: 13px;
         font-weight: bold;
+        text-align: center;
+        padding: 10px;
     }
 
-    .da-answer-entries {
+    .da-word-entries {
         flex: 3;
         margin: 0;
         padding: 0;
@@ -66,18 +71,21 @@ const props = defineProps({
         font-size: 13px;
         list-style: none;
         padding: 10px;
+        border: 1px solid rgb(243, 233, 233);
+        border-radius: 10px;
+        margin-left: 5px;
     }
 
-    .da-answer-entry {
+    .da-word-entry {
         margin-top: 10px;
         margin-bottom: 10px;
     }
 
-    .da-answer-entry:first-child {
+    .da-word-entry:first-child {
         margin-top: 0;
     }
 
-    .da-answer-entry:last-child {
+    .da-word-entry:last-child {
         margin-bottom: 0;
     }
 </style>

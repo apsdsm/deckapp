@@ -40,15 +40,21 @@ function addWordToDeck(elem) {
 
 <style>
 .da-phrase-kanji {
-  color: blue;
-  border: 1px solid grey;
+  color: rgb(4, 133, 255);
+  border: 1px solid rgb(241, 238, 228);
+  background-color: rgb(248, 248, 240);
   padding: 0 4px;
   border-radius: 3px;
   margin: 0 4px;
   cursor: pointer;
+  white-space: nowrap;
+}
+
+.da-phrase-kanji:hover {
+  background-color: rgb(255, 255, 203);
 }
 
 .selected {
-  color: red;
+  color: rgb(170, 78, 78);
 }
 </style>
