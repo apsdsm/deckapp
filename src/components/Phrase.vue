@@ -1,8 +1,13 @@
 <template>
   <div v-if="phrase.ready">
     <p>
-      <span v-for="elem in phrase.streamed">
-        <a v-if="elem.type == 'kanji'" class="da-phrase-kanji" v-bind:class="{ selected: elem.inUserDeck }" @click="addWordToDeck(elem)">
+      <span v-for="elem in phrase.tokenized">
+        <a
+          v-if="elem.type == 'kanji'"
+          class="da-phrase-kanji"
+          v-bind:class="{ selected: elem.inUserDeck }"
+          @click="addWordToDeck(elem)"
+        >
           {{ elem.content }}
         </a>
         <span v-else class="da-phrase-text">

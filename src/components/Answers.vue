@@ -9,10 +9,10 @@
 
                 <ul class="da-word-entries">
                     <li v-for="entry in word.entries" class="da-word-entry">
-                        {{ entry.pronunciation }}
+                        {{ entry.reading }}
 
                         <ul class="da-word-entry-meaning">
-                            <li v-for="meaning in entry.english">
+                            <li v-for="meaning in entry.meanings">
                                 {{ meaning }}
                             </li>
                         </ul>

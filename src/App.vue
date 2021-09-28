@@ -17,18 +17,17 @@ export default {
     const router = useRouter()
 
     onMounted(() => {
-        router.push('/')
+      router.push('/')
     })
 
     return {
-      
+
     }
   }
 }
 </script>
 
 <style>
-
 body {
   background: white;
 }
@@ -43,26 +42,27 @@ body {
 }
 
 #nav {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-    background-color: rgb(255, 255, 232);
-    border-bottom: 1px solid rgb(240, 240, 219);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  background-color: rgb(255, 255, 232);
+  border-bottom: 1px solid rgb(240, 240, 219);
+  user-select: none;
 }
 
 #nav a {
-    display: block;
-    width: 50%;
-    padding: 10px 5px;
-    text-decoration: none;
-    color:chocolate;
+  display: block;
+  width: 50%;
+  padding: 10px 5px;
+  text-decoration: none;
+  color: chocolate;
 }
 
 #nav a:hover {
-  color:crimson;
+  color: crimson;
   background-color: rgb(255, 254, 172);
 }
 
@@ -70,21 +70,28 @@ html {
   box-sizing: border-box;
 }
 
-*, *:before, *:after {
+*,
+*:before,
+*:after {
   box-sizing: border-box;
 }
 
 button {
-    background-color: rgb(184, 195, 201);
-    border: 0;
-    padding: 5px 10px;
-    color: white;
-    border-radius: 5px;
-    margin: 0 5px;
+  background-color: rgb(184, 195, 201);
+  border: 0;
+  padding: 5px 10px;
+  color: white;
+  border-radius: 5px;
+  margin: 0 5px;
+  user-select: none;
 }
 
 button:hover {
-    background-color: rgb(161, 202, 224);
-    cursor: pointer;
+  background-color: rgb(161, 202, 224);
+  cursor: pointer;
+}
+
+button:disabled {
+  color: rgb(179, 179, 179)
 }
 </style>

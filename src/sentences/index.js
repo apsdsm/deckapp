@@ -1,20 +1,7 @@
 import corpus from './corpus.json';
 import * as wanakana from 'wanakana';
-const Dictionary = require('japaneasy');
+const axios = require('axios').default;
 
-export async function slowRandom(containing) {
-
-    console.log('start slow random');
-    console.log(containing);
-
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            console.log(containing);
-            console.log('resolving slow random');
-            resolve(random(containing));
-        }, 1000)
-    })
-}
 
 /**
  * Return a random sample from the corpus containing the specified kanji. Will tokenize
@@ -24,19 +11,19 @@ export async function slowRandom(containing) {
  * @returns 
  */
 export async function random(containing) {
+    let corpusRand = getRandomFromCorpus(containing);
 
-    let filtered = corpus.filter(x => {
-        return !x.japanese ? false : x.japanese.includes(containing);
-    })
+    // setup skeleton object tha will get populated throughout this function
+    let random = {
+        japanese: corpusRand.japanese,
+        english: corpusRand.english,
+    }
 
-    let idx = Math.floor(Math.random() * filtered.length);
-    let random = filtered[idx];
-
-    // tokenize sentence
-    random.tokenized = wanakana.tokenize(random.japanese);
+    // let WanaKana tokenenzize the sentence (gives us a nice starting point to process)
+    let wkTokenized = wanakana.tokenize(random.japanese);
 
     // stream into renderable blocks
-    random.streamed = [];
+    random.tokenized = [];
     let words = [];
     let inText = false;
 
@@ -45,13 +32,13 @@ export async function random(containing) {
     // (i.e., not kanji) in a row, they should be concatinated into a single text
     // element. Kanji (as identified by wanakana, which is actually closer to a
     // word) should always be in their own element.
-    random.tokenized.forEach(element => {
+    wkTokenized.forEach(element => {
         if (!wanakana.isKanji(element)) {
 
             // no elements in array yet, or the last thing we added was a kanji? 
             // set up a new element for concatinating text fragments.
-            if (random.streamed.length == 0 || !inText) {
-                random.streamed.push({
+            if (random.tokenized.length == 0 || !inText) {
+                random.tokenized.push({
                     type: 'text',
                     content: '',
                 });
@@ -59,11 +46,11 @@ export async function random(containing) {
             }
 
             // add the text fragment to the current element
-            random.streamed[random.streamed.length - 1].content += element;
+            random.tokenized[random.tokenized.length - 1].content += element;
 
         } else {
             inText = false;
-            random.streamed.push({
+            random.tokenized.push({
                 type: 'kanji',
                 content: element,
             });
@@ -75,16 +62,12 @@ export async function random(containing) {
         }
     });
 
-    // lets get all the word readings
-
+    // for each word in our list, fetch a list of dictionary entries from wwwjdic
     let searchPromises = [];
 
-    let dict = new Dictionary();
-
     words.forEach(word => {
-        searchPromises.push(dict(word));
+        searchPromises.push(fetchWwwjdicRes(word));
     })
-
 
     let promiseRes = await Promise.all(searchPromises);
 
@@ -114,12 +97,131 @@ export async function random(containing) {
         });
     }
 
-        
     random.promiseRes = promiseRes;
     random.ready = true;
 
     // debug what we just built...
+    console.log("---DONE---")
     console.log(random);
 
     return random;
+}
+
+
+/**
+ * Return a random sentence from the corpus.
+ * 
+ * @returns 
+ */
+function getRandomFromCorpus(containing) {
+    let filtered = corpus.filter(x => {
+        return !x.japanese ? false : x.japanese.includes(containing);
+    })
+
+    let idx = Math.floor(Math.random() * filtered.length);
+    return filtered[idx];
+}
+
+/**
+ * Fetch a word from wwwjdic, then parse and return results.
+ * 
+ * @param {*} word 
+ * @returns 
+ */
+async function fetchWwwjdicRes(word) {
+    let res = await axios.get("http://www.edrdg.org/cgi-bin/wwwjdic/wwwjdic?1ZUP" + word)
+    return parseWwwjdicRes(res.data);
+}
+
+/**
+ * Return an array of parsed word meanings:
+ * 
+ * ```
+ * [
+ *   {
+ *     "word": "人",
+ *     "common": true,
+ *     "reading": "じん",
+ *     "meanings": [
+ *       "(suf) (1) (indicates nationality, race, origin, etc.) -ian (e.g. Italian)/-ite (e.g. Tokyoite)",
+ *       "(suf) (2) (indicates expertise (in a certain field)) -er (e.g. performer, etc.)/person working with ...",
+ *       "(suf) (3) (usu. in compound words) man/person/people",
+ *     ]
+ *   },
+ * ]
+ * ```
+ * 
+ * @param {*} data 
+ * @param {*} want 
+ * @returns 
+ */
+function parseWwwjdicRes(data, want = null) {
+
+    const rawSplitRegexp = /(.*)\[(.*)](.*)$/;
+    const meaningSplitRegexp = /(\/\(.+?\)\s\(\d+?\))/g;
+    const commonWordRegexp = /\/\(P\)\//;
+
+    let split = data.split('\n');
+    let entries = [];
+
+    split.forEach(raw => {
+        if (raw.charAt(0) == '<' || raw == '') {
+            return;
+        }
+
+        let parts = raw.match(rawSplitRegexp);
+
+        // if there aren't enough parts to parse the word, return null
+        if (!parts || parts.length < 4) {
+            return null;
+        }
+
+        // initial values
+        let word = parts[1].trim();
+        let reading = parts[2].trim();
+        let meaningsRaw = parts[3].trim();
+        let common = false;
+        let meanings = [];
+
+        // if only a specific word is wanted, return if not exact match
+        if (want != null && want != word) {
+            return;
+        }
+
+        // split the raw meanings string into an array of (unprocessed) meanings
+        let meaningsParsed = meaningsRaw.replace(meaningSplitRegexp, "%%NEWDEF%%$1");
+        let meaningsSplit = meaningsParsed.split("%%NEWDEF%%");
+
+        // go through each of the meanings that we split out, and do some processing before
+        // adding to the meanings array. Do not add empty strings.
+        meaningsSplit.forEach(x => {
+            x = x.trim();
+
+            if (x == '') {
+                return;
+            }
+
+            // check to see if common word (if so remove the (P))
+            if (x.match(commonWordRegexp)) {
+                common = true;
+                x = x.replace(commonWordRegexp, '')
+            }
+
+            // trim the leading '\' from the entry
+            x = x.slice(1);
+
+            // append to the array of parsed meanings
+            meanings.push(x);
+        })
+
+        // add a processed entry to the lis
+        entries.push({
+            word: word,
+            common: common,
+            reading: reading,
+            meanings: meanings, 
+        })
+    });
+
+    return entries;
 }
