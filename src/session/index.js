@@ -3,7 +3,7 @@ import path from 'path'
 import { app } from '@electron/remote'
 
 function configPath() {
-  let appDataPath = app.getAppPath('appData');
+  let appDataPath = app.getPath('userData');
   return path.join(appDataPath, 'app-deck-config.json')
 }
 
